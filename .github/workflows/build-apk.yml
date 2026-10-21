@@ -29,6 +29,9 @@ jobs:
         with:
           gradle-version: '9.3.1'
 
+      - name: Setup Keystore
+        run: echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 --decode > debug.keystore
+
       - name: Build Debug APK
         run: gradle assembleDebug
 
@@ -51,11 +54,17 @@ jobs:
           cp app/build/outputs/apk/debug/app-debug.apk ./LoveNest-v${{ github.run_number }}-debug.apk
           
           echo "Publishing release $TAG_NAME with asset LoveNest-v${{ github.run_number }}-debug.apk..."
-          gh release create "$TAG_NAME" ./LoveNest-v${{ github.run_number }}-debug.apk \
-            --title "$RELEASE_TITLE" \
-            --notes "Automated build and release of LoveNest debug APK. Build number: ${{ github.run_number }}. Root commit: ${{ github.sha }}." \
-            --draft=false \
-            --prerelease=false
+          
+          # Check if release exists
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Release $TAG_NAME already exists, skipping creation."
+          else
+            gh release create "$TAG_NAME" ./LoveNest-v${{ github.run_number }}-debug.apk \
+              --title "$RELEASE_TITLE" \
+              --notes "Automated build and release of LoveNest debug APK. Build number: ${{ github.run_number }}. Root commit: ${{ github.sha }}." \
+              --draft=false \
+              --prerelease=false
+          fi
 
       - name: Generate Workflow Summary
         run: |

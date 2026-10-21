@@ -31,8 +31,8 @@ object FileDownloader {
             }
         } else {
             try {
-                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                if (!downloadsDir.exists()) {
+                val downloadsDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                if (downloadsDir != null && !downloadsDir.exists()) {
                     downloadsDir.mkdirs()
                 }
                 val extension = getExtension(category)
@@ -52,7 +52,7 @@ object FileDownloader {
                 
                 Toast.makeText(
                     context, 
-                    "📂 Saved successfully to Downloads/$fileName! 📲 Click to open.", 
+                    "📂 Saved successfully to App Downloads/$fileName! 📲", 
                     Toast.LENGTH_LONG
                 ).show()
             } catch (e: Exception) {
